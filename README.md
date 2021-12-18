@@ -1,0 +1,1 @@
+# golang-struct-partial-update
