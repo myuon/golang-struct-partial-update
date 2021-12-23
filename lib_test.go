@@ -12,19 +12,56 @@ func TestPartialUpdate(t *testing.T) {
 		B int
 	}
 
-	value := S{
-		A: "a",
-		B: 1,
-	}
-	updater := struct {
-		A string
-	}{
-		A: "b",
+	type testCase struct {
+		run  func(value *S) error
+		want S
 	}
 
-	assert.NoError(t, PartialUpdate(&value, updater))
-	assert.Equal(t, S{
-		A: "b",
-		B: 1,
-	}, value)
+	testCases := []testCase{
+		{
+			run: func(value *S) error {
+				return PartialUpdate(value, struct{ A string }{
+					A: "b",
+				})
+			},
+			want: S{
+				A: "b",
+				B: 1,
+			},
+		},
+		{
+			// set nil to do nothing
+			run: func(value *S) error {
+				return PartialUpdate(value, struct{ A *string }{
+					A: nil,
+				})
+			},
+			want: S{
+				A: "a",
+				B: 1,
+			},
+		},
+		{
+			// pass a pointer to set the value
+			run: func(value *S) error {
+				return PartialUpdate(value, struct{ A *string }{
+					A: nil,
+				})
+			},
+			want: S{
+				A: "a",
+				B: 1,
+			},
+		},
+	}
+
+	for _, tt := range testCases {
+		value := S{
+			A: "a",
+			B: 1,
+		}
+
+		assert.NoError(t, tt.run(&value))
+		assert.Equal(t, tt.want, value)
+	}
 }

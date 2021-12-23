@@ -25,7 +25,13 @@ func PartialUpdate(value interface{}, updater interface{}) error {
 		field := updaterType.Field(i)
 		fieldValue := reflect.ValueOf(updater).Field(i)
 
-		tmp.Elem().FieldByName(field.Name).Set(fieldValue)
+		if field.Type.Kind() == reflect.Ptr {
+			if !fieldValue.IsNil() {
+				tmp.Elem().FieldByName(field.Name).Set(fieldValue.Elem())
+			}
+		} else {
+			tmp.Elem().FieldByName(field.Name).Set(fieldValue)
+		}
 	}
 
 	return nil
