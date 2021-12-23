@@ -44,12 +44,14 @@ func TestPartialUpdate(t *testing.T) {
 		{
 			// pass a pointer to set the value
 			run: func(value *S) error {
+				a := "aaa"
+
 				return PartialUpdate(value, struct{ A *string }{
-					A: nil,
+					A: &a,
 				})
 			},
 			want: S{
-				A: "a",
+				A: "aaa",
 				B: 1,
 			},
 		},
